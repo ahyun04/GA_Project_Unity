@@ -10,6 +10,8 @@ public class CardComboBruteForce : MonoBehaviour
     public Button startButton;
     public int costLimit = 15;
 
+    
+
     struct CardInfo
     {
         public int damage; public int cost; public int maxCount;
