@@ -12,6 +12,7 @@ public class Maze : MonoBehaviour
     public GameObject wallPrefab;
     public GameObject floorPrefab;
     public GameObject pathPrefab;
+    public GameObject playerPrefab;
 
     private int[,] map;
     private GameObject[,] tiles;
@@ -19,36 +20,54 @@ public class Maze : MonoBehaviour
     private Vector2Int start;
     private Vector2Int goal;
 
-    private readonly Vector2Int[] dirs = {
-        new(1,0), new(-1,0), new(0,1), new(0,-1)
+    private GameObject player;
+
+    private readonly Vector2Int[] dirs =
+    {
+        new (1,0), new(-1,0), new(0,1), new(0,-1)
     };
 
     void Start()
     {
         GenerateMaze();
+        SpawnPlayer();
     }
 
-    void Update()
+    // ❌ 키 입력 제거됨
+    void Update() { }
+
+    // =======================================================
+    // 🟩 UI 버튼에서 호출할 함수
+    // =======================================================
+
+    // 📌 최단경로만 표시
+    public void OnClick_ShowPath()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            // 맵 전체 초기화 후 새 미로 생성
-            ClearMaze();
-            GenerateMaze();
-        }
-        else if (Input.GetKeyDown(KeyCode.R))
-        {
-            // 최단 경로 표시
-            ShowShortestPath();
-        }
+        ShowShortestPath();
     }
+
+    // 🚶 자동 이동 버튼
+    public void OnClick_AutoMove()
+    {
+        StartAutoMove();
+    }
+
+    public void OnClick_NewMaze() // ⭐ 새로 생성하는 버튼도 추가하면 편함
+    {
+        ClearMaze();
+        GenerateMaze();
+        SpawnPlayer();
+    }
+
+    // =======================================================
+    // 👍 내부 동작 코드 (변경 없음)
+    // =======================================================
 
     void GenerateMaze()
     {
         map = new int[height, width];
         tiles = new GameObject[height, width];
 
-        // 외곽은 벽으로
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -74,38 +93,66 @@ public class Maze : MonoBehaviour
         {
             for (int x = 0; x < width; x++)
             {
-                Vector3 pos = new Vector3(x, 0, y);
-                if (map[y, x] == 1)
-                    tiles[y, x] = Instantiate(wallPrefab, pos, Quaternion.identity, transform);
-                else
-                    tiles[y, x] = Instantiate(floorPrefab, pos, Quaternion.identity, transform);
+                Vector3 pos = new(x, 0, y);
+                tiles[y, x] = Instantiate(
+                    map[y, x] == 1 ? wallPrefab : floorPrefab,
+                    pos, Quaternion.identity, transform
+                );
             }
         }
     }
 
     void ClearMaze()
     {
-        if (tiles == null) return;
-        foreach (Transform child in transform)
-        {
-            Destroy(child.gameObject);
-        }
+        foreach (Transform t in transform)
+            Destroy(t.gameObject);
+
+        if (player) Destroy(player);
+    }
+
+    void SpawnPlayer()
+    {
+        Vector3 pos = new(start.x, 0.5f, start.y);
+        player = Instantiate(playerPrefab, pos, Quaternion.identity);
     }
 
     void ShowShortestPath()
     {
         List<Vector2Int> path = BFS(start, goal);
-        if (path == null)
-        {
-            Debug.Log("❌ 경로 없음 - 다시 생성 필요");
-            return;
-        }
+        if (path == null) return;
 
         foreach (var p in path)
         {
             if (p == start || p == goal) continue;
-            Vector3 pos = new Vector3(p.x, 0.1f, p.y);
+            Vector3 pos = new(p.x, 0.1f, p.y);
             Instantiate(pathPrefab, pos, Quaternion.identity, transform);
+        }
+    }
+
+    void StartAutoMove()
+    {
+        List<Vector2Int> path = BFS(start, goal);
+        if (path == null) return;
+
+        StopAllCoroutines();
+        StartCoroutine(MoveAlong(path));
+    }
+
+    IEnumerator MoveAlong(List<Vector2Int> path)
+    {
+        foreach (var p in path)
+        {
+            Vector3 targetPos = new(p.x, 0.5f, p.y);
+            while (Vector3.Distance(player.transform.position, targetPos) > 0.01f)
+            {
+                player.transform.position = Vector3.MoveTowards(
+                    player.transform.position,
+                    targetPos,
+                    Time.deltaTime * 3f
+                );
+                yield return null;
+            }
+            yield return new WaitForSeconds(0.05f);
         }
     }
 
@@ -120,10 +167,8 @@ public class Maze : MonoBehaviour
         while (q.Count > 0)
         {
             var cur = q.Dequeue();
-
             if (cur == goal)
             {
-                // 역추적
                 List<Vector2Int> path = new();
                 while (cur != start)
                 {
@@ -146,7 +191,6 @@ public class Maze : MonoBehaviour
                 q.Enqueue(next);
             }
         }
-
         return null;
     }
 }
