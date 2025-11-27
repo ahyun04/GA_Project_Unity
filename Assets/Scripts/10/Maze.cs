@@ -33,36 +33,27 @@ public class Maze : MonoBehaviour
         SpawnPlayer();
     }
 
-    // ❌ 키 입력 제거됨
     void Update() { }
 
-    // =======================================================
-    // 🟩 UI 버튼에서 호출할 함수
-    // =======================================================
-
-    // 📌 최단경로만 표시
+    
     public void OnClick_ShowPath()
     {
         ShowShortestPath();
     }
 
-    // 🚶 자동 이동 버튼
     public void OnClick_AutoMove()
     {
         StartAutoMove();
     }
 
-    public void OnClick_NewMaze() // ⭐ 새로 생성하는 버튼도 추가하면 편함
+    public void OnClick_NewMaze() 
     {
         ClearMaze();
         GenerateMaze();
         SpawnPlayer();
     }
 
-    // =======================================================
-    // 👍 내부 동작 코드 (변경 없음)
-    // =======================================================
-
+    
     void GenerateMaze()
     {
         map = new int[height, width];

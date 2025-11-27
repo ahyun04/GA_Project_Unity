@@ -2,7 +2,7 @@
 - Project name: GA_Project_Unity
 - Unity version: Unity 2022.3.58f1
 - Active game object:
-  - Name: Text (TMP)
+  - Name: GameObject
   - Tag: Untagged
-  - Layer: UI
+  - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
