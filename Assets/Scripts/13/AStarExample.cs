@@ -29,7 +29,7 @@ public class AStarExample : MonoBehaviour
         }
     }
 
-    List<Vector2Int> AStar(int[.] map, Vector2Int start, Vector2Int goal)
+    List<Vector2Int> AStar(int[,] map, Vector2Int start, Vector2Int goal)
     {
         int w =map.GetLength(0);
         int h =map.GetLength(1);
@@ -81,7 +81,7 @@ public class AStarExample : MonoBehaviour
                 int nx = cur.x + d.x;
                 int ny = cur.y + d.y;
 
-                if (!InBounds(map, nx, ny) continue;
+                if (!InBounds(map, nx, ny)) continue;
                 if (map[nx, ny] == 0) continue;
                 if(visited[nx, ny]) continue;
 
