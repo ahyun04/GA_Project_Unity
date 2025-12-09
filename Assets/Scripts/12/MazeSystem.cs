@@ -6,12 +6,51 @@ using static MazeGenerator;
 
 public class MazeSystem : MonoBehaviour
 {
+    public MazeGenerator generator;
+    public AStarCustom astar;
     public int[,] map;
     public Vector2Int start;
     public Vector2Int goal;
 
     public MazeGenerator gen;
+   
+    public GameObject enemyPrefab;
+    public int enemyCount = 5;
 
+    public void BuildMaze()
+    {
+        generator.Generate();
+        map = generator.map;
+        astar.map = map;
+
+        SpawnEnemies();
+    }
+
+    void SpawnEnemies()
+    {
+        for (int i = 0; i < enemyCount; i++)
+        {
+            Vector2Int pos = GetRandomEmptyPosition();
+
+            Vector3 worldPos = new Vector3(pos.x, 1, pos.y);
+
+            Instantiate(enemyPrefab, worldPos, Quaternion.identity);
+        }
+    }
+
+    Vector2Int GetRandomEmptyPosition()
+    {
+        int x, y;
+
+        while (true)
+        {
+            x = Random.Range(0, map.GetLength(0));
+            y = Random.Range(0, map.GetLength(1));
+
+            if (map[x, y] == 0)   // 0 = ±æ (º®ÀÌ ¾Æ´Ô)
+                return new Vector2Int(x, y);
+        }
+    }
     void Start()
     {
         while (true)

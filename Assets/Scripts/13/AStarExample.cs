@@ -74,7 +74,7 @@ public class AStarExample : MonoBehaviour
             visited[cur.x, cur.y] = true;
 
             if(cur == goal)
-                return Reconstruct(parent, start, goal);
+                //return Reconstruct(parent, start, goal);
 
             foreach(var d in dirs)
             {
